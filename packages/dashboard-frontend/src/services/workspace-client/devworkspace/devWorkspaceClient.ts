@@ -35,6 +35,7 @@ import { EventEmitter } from 'events';
 import { isWorkspaceV2 } from '../../workspace-adapter';
 import { AppAlerts } from '../../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
+import { getErrorMessage } from '../../helpers/getErrorMessage';
 
 export interface IStatusUpdate {
   error?: string;
@@ -229,9 +230,10 @@ export class DevWorkspaceClient extends WorkspaceClient {
         sidecarPolicy,
         suffix: workspaceId,
       });
-    } catch (error) {
-      console.error(error);
-      throw new Error(`Unable to update the devWorkspace with the devfile resolver: ${error.message}`);
+    } catch (e) {
+      console.error(e);
+      const errorMessage = getErrorMessage(e);
+      throw new Error(`Unable to update the devWorkspace with the devfile resolver: ${errorMessage}`);
     }
     console.debug('Devfile updated to', devfile, ' and templates updated to', devWorkspaceTemplates);
 
