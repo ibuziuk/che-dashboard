@@ -13,9 +13,7 @@
 import { inject, injectable } from 'inversify';
 import { isWebTerminal } from '../../helpers/devworkspace';
 import { WorkspaceClient } from '../index';
-import {
-  IDevWorkspaceDevfile, IDevWorkspace, IDevWorkspaceTemplate, IPatch,
-} from './types';
+import devfileApi, { IPatch } from '../../devfileApi';
 import {
   devWorkspaceApiGroup, devworkspaceSingularSubresource, devworkspaceVersion
 } from './converters';
@@ -66,7 +64,6 @@ export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
  */
 @injectable()
 export class DevWorkspaceClient extends WorkspaceClient {
-  private subscriber: Subscriber | undefined;
   private previousItems: Map<string, Map<string, IStatusUpdate>>;
   private readonly maxStatusAttempts: number;
   private lastDevWorkspaceLog: Map<string, string>;
@@ -135,9 +132,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return Array.from(this._failingWebSockets);
   }
 
-  async getAllWorkspaces(defaultNamespace: string): Promise<{ workspaces: IDevWorkspace[]; resourceVersion: string }> {
+  async getAllWorkspaces(defaultNamespace: string): Promise<{ workspaces: devfileApi.DevWorkspace[]; resourceVersion: string }> {
     const { items, metadata: { resourceVersion } } = await DwApi.listWorkspacesInNamespace(defaultNamespace);
-    const workspaces: IDevWorkspace[] = [];
+    const workspaces: devfileApi.DevWorkspace[] = [];
     for (const item of items) {
       if (!isWebTerminal(item)) {
         workspaces.push(item);
@@ -146,7 +143,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return { workspaces, resourceVersion };
   }
 
-  async getWorkspaceByName(namespace: string, workspaceName: string): Promise<IDevWorkspace> {
+  async getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
     let workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
     let attempted = 0;
     while ((!workspace.status || !workspace.status.phase || !workspace.status.mainUrl) && attempted < this.maxStatusAttempts) {
@@ -279,7 +276,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         }
       }
 
-      const pluginDWT = await DwtApi.createTemplate(<IDevWorkspaceTemplate>template);
+      const pluginDWT = await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>template);
       this.addPlugin(createdWorkspace, pluginDWT.metadata.name, pluginDWT.metadata.namespace);
     }));
 
@@ -305,7 +302,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * @param workspace The DevWorkspace you want to update
    * @param plugins The plugins you want to inject into the devworkspace
    */
-  async update(workspace: IDevWorkspace, plugins: IDevWorkspaceDevfile[]): Promise<IDevWorkspace> {
+  async update(workspace: devfileApi.DevWorkspace, plugins: devfileApi.Devfile[]): Promise<devfileApi.DevWorkspace> {
     // Take the devworkspace with no plugins and then inject them
     for (const plugin of plugins) {
       const pluginName = this.normalizePluginName(plugin.metadata.name, getId(workspace));
@@ -375,7 +372,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     await DwApi.deleteWorkspace(namespace, name);
   }
 
-  async changeWorkspaceStatus(namespace: string, name: string, started: boolean): Promise<IDevWorkspace> {
+  async changeWorkspaceStatus(namespace: string, name: string, started: boolean): Promise<devfileApi.DevWorkspace> {
     const changedWorkspace = await DwApi.patchWorkspace(namespace, name, [{
       op: 'replace',
       path: '/spec/started',
@@ -393,7 +390,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * @param workspace A devworkspace
    * @param pluginName The name of the plugin
    */
-  private addPlugin(workspace: IDevWorkspace, pluginName: string, namespace: string) {
+  private addPlugin(workspace: devfileApi.DevWorkspace, pluginName: string, namespace: string) {
     if (!workspace.spec.template.components) {
       workspace.spec.template.components = [];
     }
@@ -491,7 +488,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * and the new DevWorkspace
    * @param devworkspace The incoming DevWorkspace
    */
-  private createStatusUpdate(devworkspace: IDevWorkspace): IStatusUpdate {
+  private createStatusUpdate(devworkspace: devfileApi.DevWorkspace): IStatusUpdate {
     const namespace = devworkspace.metadata.namespace;
     const workspaceId = getId(devworkspace);
     // Starting devworkspaces don't have status defined
@@ -524,12 +521,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
   }
 
-  checkForDevWorkspaceError(devworkspace: IDevWorkspace) {
+  checkForDevWorkspaceError(devworkspace: devfileApi.DevWorkspace) {
     const currentPhase = getStatus(devworkspace);
     if (currentPhase && currentPhase === DevWorkspaceStatus.FAILED) {
-      const message = devworkspace.status.message;
+      const message = devworkspace.status?.message;
       if (message) {
-        throw new Error(devworkspace.status.message);
+        throw new Error(message);
       }
       throw new Error('Unknown error occured when trying to process the devworkspace');
     }
