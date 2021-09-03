@@ -14,6 +14,7 @@ import axios from 'axios';
 import { createFastifyError, getErrorMessage } from '../helpers';
 import { isLocalRun } from '../../index';
 import * as https from 'https';
+import { URL } from 'url';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 const ENDPOINT = 'che.keycloak.userinfo.endpoint';
