@@ -11,6 +11,7 @@
  */
 
 import { inject, injectable } from 'inversify';
+import common from '@eclipse-che/common';
 import { isWebTerminal } from '../../helpers/devworkspace';
 import { WorkspaceClient } from '../index';
 import devfileApi, { IPatch } from '../../devfileApi';
@@ -33,7 +34,6 @@ import { EventEmitter } from 'events';
 import { isWorkspaceV2 } from '../../workspace-adapter';
 import { AppAlerts } from '../../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
-import { getErrorMessage } from '../../helpers/getErrorMessage';
 
 export interface IStatusUpdate {
   error?: string;
@@ -42,16 +42,6 @@ export interface IStatusUpdate {
   prevStatus?: string;
   workspaceId: string;
 }
-
-export type Subscriber = {
-  namespace: string,
-  callbacks: {
-    getResourceVersion: () => Promise<string|undefined>,
-    updateDevWorkspaceStatus: (message: IStatusUpdate) => void,
-    updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => void,
-    updateAddedDevWorkspaces: (workspace: IDevWorkspace[]) => void,
-  }
-};
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
@@ -162,13 +152,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return workspace;
   }
 
-  async create(devfile: IDevWorkspaceDevfile,
+  async create(devfile: devfileApi.Devfile,
     defaultNamespace: string,
-    pluginsDevfile: IDevWorkspaceDevfile[],
+    pluginsDevfile: devfileApi.Devfile[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     optionalFilesContent: {[fileName: string]: string},
-  ): Promise<IDevWorkspace> {
+  ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
     }
@@ -229,7 +219,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       });
     } catch (e) {
       console.error(e);
-      const errorMessage = getErrorMessage(e);
+      const errorMessage = common.helpers.errors.getMessage(e);
       throw new Error(`Unable to resolve theia plugins: ${errorMessage}`);
     }
     console.debug('Devfile updated to', devfile, ' and templates updated to', devWorkspaceTemplates);
