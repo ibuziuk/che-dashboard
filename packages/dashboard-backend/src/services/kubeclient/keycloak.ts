@@ -11,7 +11,8 @@
  */
 
 import axios from 'axios';
-import { createFastifyError, getErrorMessage } from '../helpers';
+import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import { createFastifyError } from '../helpers';
 import { isLocalRun } from '../../index';
 import * as https from 'https';
 import { URL } from 'url';
@@ -39,7 +40,7 @@ export async function validateToken(keycloakToken: string): Promise<void> {
   } catch (e) {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
-      `Failed to validate token: ${getErrorMessage(e)}`,
+      `Failed to validate token: ${getMessage(e)}`,
       401
     );
   }
@@ -60,7 +61,7 @@ async function evaluateKeycloakEndpointUrl(): Promise<URL> {
   } catch (e) {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
-      `Failed to fetch keycloak settings: ${getErrorMessage(e)}`,
+      `Failed to fetch keycloak settings: ${getMessage(e)}`,
       401
     );
   }
