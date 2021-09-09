@@ -31,7 +31,7 @@ import * as DwCheApi from '../../dashboard-backend-client/cheWorkspaceApi';
 import { WebsocketClient, SubscribeMessage } from '../../dashboard-backend-client/websocketClient';
 import { getId, getStatus } from '../../workspace-adapter/helper';
 import { EventEmitter } from 'events';
-import { isWorkspaceV2 } from '../../workspace-adapter';
+import { isCheWorkspace } from '../../workspace-adapter';
 import { AppAlerts } from '../../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
 
@@ -42,6 +42,16 @@ export interface IStatusUpdate {
   prevStatus?: string;
   workspaceId: string;
 }
+
+export type Subscriber = {
+  namespace: string,
+  callbacks: {
+    getResourceVersion: () => Promise<string|undefined>,
+    updateDevWorkspaceStatus: (message: IStatusUpdate) => void,
+    updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => void,
+    updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => void,
+  }
+};
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
@@ -65,6 +75,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly webSocketEventName: string;
   private readonly _failingWebSockets: string[];
   private readonly showAlert: (alert: AlertItem) => void;
+  private subscriber: Subscriber;
 
   constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService,
               @inject(AppAlerts) appAlerts: AppAlerts) {
@@ -422,16 +433,16 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const onModified = 'onModified';
     await this.websocketClient.subscribe(await getSubscribeMessage(onModified));
     this.websocketClient.addListener(onModified, (maybeDevworkspace: unknown) => {
-      if (isWorkspaceV2(maybeDevworkspace as any) === false ) {
+      if (isCheWorkspace(maybeDevworkspace as any)) {
         const title = `WebSocket channel "${onModified}" received object that is not a devWorkspace, skipping it.`;
         const key = `${onModified}-websocket-channel`;
         console.warn(title , maybeDevworkspace);
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }
-      const devworkspace = maybeDevworkspace as IDevWorkspace;
+      const devworkspace = maybeDevworkspace as devfileApi.DevWorkspace;
       const statusUpdate = this.createStatusUpdate(devworkspace);
-      const statusMessage = devworkspace.status.message;
+      const statusMessage = devworkspace.status?.message;
       if (statusMessage) {
         const workspaceId = getId(devworkspace);
         const lastMessage = this.lastDevWorkspaceLog.get(workspaceId);
@@ -447,14 +458,14 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const onAdded = 'onAdded';
     await this.websocketClient.subscribe(await getSubscribeMessage(onAdded));
     this.websocketClient.addListener(onAdded, (maybeDevworkspace: unknown) => {
-      if (isWorkspaceV2(maybeDevworkspace as any) === false ) {
+      if (isCheWorkspace(maybeDevworkspace as any) ) {
         const title = `WebSocket channel "${onAdded}" received object that is not a devWorkspace, skipping it.`;
         const key = `${onAdded}-websocket-channel`;
         console.warn(title , maybeDevworkspace);
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }
-      const workspace = maybeDevworkspace as IDevWorkspace;
+      const workspace = maybeDevworkspace as devfileApi.DevWorkspace;
       callbacks.updateAddedDevWorkspaces([workspace]);
     });
 

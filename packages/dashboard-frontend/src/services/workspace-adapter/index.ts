@@ -100,17 +100,16 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
 
   get created(): number {
     if (isCheWorkspace(this.workspace)) {
-      return parseInt(this.workspace.attributes?.created || '', 10) || 0;
+      if (this.workspace.attributes?.created) {
+        return new Date(parseInt(this.workspace.attributes?.created || '', 10)).valueOf();
+      }
     } else {
       const reference = this.workspace as devfileApi.DevWorkspace;
-      let timestamp: number;
       if (reference.metadata.creationTimestamp) {
-        timestamp = Math.round(reference.metadata.creationTimestamp.getTime() / 1000);
-      } else {
-        timestamp = 0;
+        return new Date(reference.metadata.creationTimestamp).valueOf();
       }
-      return timestamp;
     }
+    return new Date().valueOf();
   }
 
   get updated(): number {
