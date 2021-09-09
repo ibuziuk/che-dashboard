@@ -51,7 +51,7 @@ class DevWorkspaceWatcher {
       const unsubscribeFunction = await devworkspaceApi.watchInNamespace(this.namespace, this.resourceVersion, this.callbacks);
       this.unsubscribeFunction = unsubscribeFunction;
     } catch (error) {
-      this.callbacks.onError(getMessage(error));
+      this.callbacks.onError('Failed to watch devworkspace: ' + getMessage(error));
       await this.unsubscribe();
       throw error;
     }
