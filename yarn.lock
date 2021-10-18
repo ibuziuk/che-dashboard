@@ -341,6 +341,11 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.36.0.tgz#db8774cbf688df140631c0e60107bef36c194fb1"
   integrity sha512-ephKJ3rDG53CdhfWHZ5byR2MRnTlbKObOph4+aNH9DO+rI44GTX2f9U2DjwQmHCAyGEXJkT1DdRum6C6ZbfCKA==
 
+"@eclipse-che/api@latest":
+  version "7.38.0"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.38.0.tgz#5b8db465682f264c17e7db5503c374d4135d8bd3"
+  integrity sha512-7twHfB31PUiRsvtpZOW9VzsN8Wf53bU+qfTt5anF3QwRfgAMTkTbnzs1MX3sNKP8n8XodQb4TNTHbEQzw2ektQ==
+
 "@eclipse-che/che-theia-devworkspace-handler@0.0.1-1633465187":
   version "0.0.1-1633465187"
   resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1633465187.tgz#c9e3887519328ed68d656b98c7c2642b79dab705"
@@ -353,7 +358,24 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/workspace-client@0.0.1-1632305737":
+"@eclipse-che/theia-remote-api@^0.0.1":
+  version "0.0.1-1634709921"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/theia-remote-api/-/theia-remote-api-0.0.1-1634709921.tgz#f271b88c0a30a8a0fac217307cfb7aaf764de631"
+  integrity sha512-Up1awEH2EqoPZywhooIHSzJqw6x2FC2i5j3ZuJWdIZ/wvH4l4aaX8qN909QaC+6BPhk/ynw1SIf2W5gnxYAkHA==
+  dependencies:
+    "@kubernetes/client-node" "^0.12.1"
+
+"@eclipse-che/theia-remote-impl-che-server@^0.0.1-1614283054":
+  version "0.0.1-1614283054"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/theia-remote-impl-che-server/-/theia-remote-impl-che-server-0.0.1-1614283054.tgz#7e805af7e5664c7308469a9b252b8cc3f12de88d"
+  integrity sha512-HHhbcWBBrt+VwGd5IFQzm/mMPwk6U/LWuiv35xvi1eGcBXAsRXtfC7w9g6j0y6mZg1tF07nkY6FlHRS1elr1DA==
+  dependencies:
+    "@eclipse-che/api" latest
+    "@eclipse-che/theia-remote-api" "^0.0.1"
+    "@eclipse-che/workspace-client" latest
+    "@kubernetes/client-node" "^0.12.1"
+
+"@eclipse-che/workspace-client@0.0.1-1632305737", "@eclipse-che/workspace-client@latest":
   version "0.0.1-1632305737"
   resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1632305737.tgz#c701f165514fe010704e46442a1d5f8c474ff3c6"
   integrity sha512-wIzrfAJI4unTFMeaqWBKyhLZkwrV3o5BeFHLXIw4/dhKwJwuZQ46PQB6orDejxrAErktq6pX8L1UXlJkMdLG+A==
@@ -617,6 +639,34 @@
     "@types/node" "*"
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
+
+"@kubernetes/client-node@^0.12.1":
+  version "0.12.3"
+  resolved "https://registry.yarnpkg.com/@kubernetes/client-node/-/client-node-0.12.3.tgz#5a6bdde428f3a4be306c6db2bdae27688a2c60b6"
+  integrity sha512-+Qq/WRbHIqL791JO6d3l/aupU922sriknCOsB63YjW9KVykX6/RTuPFDptfbWBVfPB3lRmhbjur95DIej1bAqA==
+  dependencies:
+    "@types/js-yaml" "^3.12.1"
+    "@types/node" "^10.12.0"
+    "@types/request" "^2.47.1"
+    "@types/stream-buffers" "^3.0.3"
+    "@types/tar" "^4.0.3"
+    "@types/underscore" "^1.8.9"
+    "@types/ws" "^6.0.1"
+    byline "^5.0.0"
+    execa "1.0.0"
+    isomorphic-ws "^4.0.1"
+    js-yaml "^3.13.1"
+    jsonpath-plus "^0.19.0"
+    openid-client "^4.1.1"
+    request "^2.88.0"
+    rfc4648 "^1.3.0"
+    shelljs "^0.8.2"
+    stream-buffers "^3.0.2"
+    tar "^6.0.2"
+    tmp-promise "^3.0.2"
+    tslib "^1.9.3"
+    underscore "^1.9.1"
+    ws "^7.3.1"
 
 "@kubernetes/client-node@^0.14.0":
   version "0.14.3"
