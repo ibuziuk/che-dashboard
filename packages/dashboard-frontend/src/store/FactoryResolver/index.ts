@@ -20,10 +20,6 @@ import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
 import { getDevfile } from './getDevfile';
-import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
-import { selectCheDevworkspaceEnabled } from '../Workspaces/Settings/selectors';
-import { devfileV2toDevfileV1 } from './devfile-converter';
-import { che as cheApi } from '@eclipse-che/api';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -138,11 +134,7 @@ export const actionCreators: ActionCreators = {
       if (cheEditor) {
         optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
       }
-      let devfile: devfileApi.Devfile | cheApi.workspace.devfile.Devfile = getDevfile(data, location);
-
-      if (isDevfileV2(devfile) && selectCheDevworkspaceEnabled(state) === false) {
-        devfile = devfileV2toDevfileV1(devfile);
-      }
+      const devfile = getDevfile(data, location);
 
       const { source, scm_info } = data;
       dispatch({
