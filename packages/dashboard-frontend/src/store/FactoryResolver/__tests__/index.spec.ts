@@ -73,11 +73,11 @@ const getFactoryResolverSpy = jest.spyOn(cheWorkspaceClient.restApiClient, 'getF
 describe('FactoryResolver store', () => {
   describe('requestFactoryResolver action', () => {
     it('should NOT convert resolved devfile v1 with devworkspace mode DISABLED', async () => {
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           apiVersion: '1.0.0',
         } as che.WorkspaceDevfile,
-      };
+      } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
@@ -108,11 +108,11 @@ describe('FactoryResolver store', () => {
     });
 
     it('should convert resolved devfile v1 with devworkspace mode ENABLED', async () => {
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           apiVersion: '1.0.0',
         } as che.WorkspaceDevfile,
-      };
+      } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
@@ -143,11 +143,11 @@ describe('FactoryResolver store', () => {
     });
 
     it('should NOT convert resolved devfile v2.x.x with devworkspace mode ENABLED', async () => {
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           schemaVersion: '2.0.0',
         } as devfileApi.Devfile,
-      };
+      } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
@@ -178,11 +178,11 @@ describe('FactoryResolver store', () => {
     });
 
     it('should convert resolved devfile v2.x.x with devworkspace mode DISABLED', async () => {
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           schemaVersion: '2.0.0',
         } as devfileApi.Devfile,
-      };
+      } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
@@ -215,11 +215,11 @@ describe('FactoryResolver store', () => {
 
   describe('actions', () => {
     it('should create REQUEST_FACTORY_RESOLVER and RECEIVE_FACTORY_RESOLVER', async () => {
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           apiVersion: '1.0.0',
         } as che.WorkspaceDevfile,
-      };
+      } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
 
@@ -417,11 +417,11 @@ describe('FactoryResolver store', () => {
       const initialState: factoryResolverStore.State = {
         isLoading: true,
       };
-      const resolver: factoryResolverStore.ResolverState = {
+      const resolver = {
         devfile: {
           schemaVersion: '2.0.0',
         } as devfileApi.Devfile,
-      };
+      } as factoryResolverStore.ResolverState;
       const converted: factoryResolverStore.ConvertedState = {
         isConverted: false,
       } as any;
