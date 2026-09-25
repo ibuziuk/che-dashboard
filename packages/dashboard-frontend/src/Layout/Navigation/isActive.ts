@@ -17,6 +17,8 @@ export default function isActive(itemPath: string, activePath: string | undefine
     return true;
   } else if (activePath && itemPath === ROUTE.WORKSPACES) {
     return /\/workspace\//.test(activePath);
+  } else if (activePath && itemPath === ROUTE.AGENT_SPACE) {
+    return activePath.startsWith(`${ROUTE.AGENT_SPACE}/`);
   }
   return false;
 }

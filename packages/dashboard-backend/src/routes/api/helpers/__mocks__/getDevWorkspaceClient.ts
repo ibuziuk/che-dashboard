@@ -39,6 +39,7 @@ import {
   IPersonalAccessTokenApi,
   IPodApi,
   IPodmanApi,
+  ISandboxApi,
   ISccPermissionApi,
   IServerConfigApi,
   IShhKeysApi,
@@ -201,6 +202,48 @@ export const stubHideEditorsById: string[] = ['che-incubator/che-idea-server/nex
 
 export const stubSessionTimeout = 86400;
 
+export const stubAgentSandboxEnabled = true;
+
+export const stubSandbox: api.ISandbox = {
+  apiVersion: 'agents.x-k8s.io/v1beta1',
+  kind: 'Sandbox',
+  metadata: {
+    name: 'my-sandbox',
+    namespace: 'user-che',
+  },
+  spec: {
+    operatingMode: 'Running',
+    podTemplate: {
+      spec: {
+        containers: [
+          {
+            name: 'main',
+            image: 'quay.io/sandbox/hello-world:latest',
+          },
+        ],
+      },
+    },
+  },
+  status: {
+    conditions: [
+      {
+        type: 'Ready',
+        status: 'True',
+        reason: 'DependenciesReady',
+      },
+    ],
+  },
+};
+
+export const stubSandboxList: api.ISandboxList = {
+  apiVersion: 'agents.x-k8s.io/v1beta1',
+  kind: 'SandboxList',
+  metadata: {
+    resourceVersion: '123456789',
+  },
+  items: [stubSandbox],
+};
+
 export const getDevWorkspaceClient = jest.fn(
   (..._args: Parameters<typeof helper>): ReturnType<typeof helper> => {
     return {
@@ -228,6 +271,7 @@ export const getDevWorkspaceClient = jest.fn(
         getDashboardLogo: () => dashboardLogo,
         getAutoProvision: () => stubAutoProvision,
         getAdvancedAuthorization: () => stubAdvancedAuthorization,
+        getAgentSandboxEnabled: () => stubAgentSandboxEnabled,
         getAllowedSourceUrls: () => stubAllowedSourceUrls,
         getShowDeprecatedEditors: () => stubShowDeprecatedEditors,
         getHideEditorsById: () => stubHideEditorsById,
@@ -270,6 +314,13 @@ export const getDevWorkspaceClient = jest.fn(
         watchInNamespace: _namespace => Promise.resolve(),
         stopWatching: () => undefined,
       } as IEventApi,
+      sandboxApi: {
+        listInNamespace: _namespace => Promise.resolve(stubSandboxList),
+        getByName: (_namespace, _name) => Promise.resolve(stubSandbox),
+        create: (_namespace, _sandbox) => Promise.resolve(stubSandbox),
+        patch: (_namespace, _name, _patches) => Promise.resolve(stubSandbox),
+        delete: (_namespace, _name) => Promise.resolve(undefined),
+      } as ISandboxApi,
       podApi: {
         listInNamespace: _namespace => Promise.resolve(stubPodsList),
         stopWatching: () => undefined,

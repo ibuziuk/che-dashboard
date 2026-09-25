@@ -390,6 +390,76 @@ export const namespacedWorkspaceSchema: JSONSchema7 = {
   required: ['namespace', 'workspaceName'],
 };
 
+export const namespacedSandboxSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    sandboxName: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'sandboxName'],
+};
+
+export const sandboxBodySchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    apiVersion: { type: 'string' },
+    kind: { type: 'string' },
+    metadata: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          // RFC 1123 subdomain, as enforced by the Kubernetes API server
+          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$',
+          maxLength: 63,
+        },
+        namespace: { type: 'string' },
+        labels: { type: 'object' },
+        annotations: { type: 'object' },
+      },
+      required: ['name'],
+    },
+    spec: {
+      type: 'object',
+      properties: {
+        podTemplate: { type: 'object' },
+        volumeClaimTemplates: { type: 'array' },
+        service: { type: 'boolean' },
+        operatingMode: { type: 'string', enum: ['Running', 'Suspended'] },
+        shutdownTime: { type: 'string' },
+        shutdownPolicy: { type: 'string', enum: ['Delete', 'Retain'] },
+      },
+      required: ['podTemplate'],
+    },
+  },
+  required: ['metadata', 'spec'],
+};
+
+export const sandboxPatchSchema: JSONSchema7 = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      op: { type: 'string' },
+      path: { type: 'string' },
+      value: {}, // matches any value
+    },
+  },
+  examples: [
+    [
+      {
+        op: 'replace',
+        path: '/spec/operatingMode',
+        value: 'Suspended',
+      },
+    ],
+  ],
+};
+
 export const namespacedTemplateSchema: JSONSchema7 = {
   type: 'object',
   properties: {

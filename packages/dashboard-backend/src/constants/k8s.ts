@@ -21,3 +21,11 @@ export const DEVWORKSPACE_OPERATOR_CONFIG_PLURAL = 'devworkspaceoperatorconfigs'
 export const DEVWORKSPACE_GROUP = 'workspace.devfile.io';
 export const DEVWORKSPACE_VERSION = 'v1alpha2';
 export const DEVWORKSPACE_PLURAL = 'devworkspaces';
+
+// Agent Space (agent-sandbox) constants
+// https://agent-sandbox.sigs.k8s.io/
+export const SANDBOX_GROUP = 'agents.x-k8s.io';
+export const SANDBOX_VERSION = 'v1beta1';
+export const SANDBOX_PLURAL = 'sandboxes';
+export const SANDBOX_KIND = 'Sandbox';
+export const SANDBOX_API_VERSION = `${SANDBOX_GROUP}/${SANDBOX_VERSION}`;

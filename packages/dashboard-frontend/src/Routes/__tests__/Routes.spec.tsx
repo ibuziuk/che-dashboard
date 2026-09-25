@@ -13,6 +13,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { Location } from 'history';
 import React, { Suspense } from 'react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import Fallback from '@/components/Fallback';
@@ -26,6 +27,7 @@ import {
 import { LoaderTab, WorkspaceDetailsTab } from '@/services/helpers/types';
 import { constructWorkspace, Workspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
+import { MockStoreBuilder } from '@/store/__mocks__/mockStore';
 
 jest.mock('@/pages/GetStarted', () => {
   return function GetStarted() {
@@ -55,6 +57,21 @@ jest.mock('@/pages/UserPreferences', () => {
 jest.mock('@/Routes/NavigateHome', () => {
   return function NavigateHome() {
     return <span>Navigate Home</span>;
+  };
+});
+jest.mock('@/containers/AgentSpace', () => {
+  return function AgentSpace() {
+    return <span>Agent Space</span>;
+  };
+});
+jest.mock('@/containers/AgentSpaceCreate', () => {
+  return function AgentSpaceCreate() {
+    return <span>Create Sandbox</span>;
+  };
+});
+jest.mock('@/containers/AgentSpaceDetails', () => {
+  return function AgentSpaceDetails() {
+    return <span>Sandbox Details</span>;
   };
 });
 
@@ -196,14 +213,59 @@ describe('Routes', () => {
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
+
+  describe('Agent Space routes', () => {
+    describe('when the agent sandbox is enabled', () => {
+      it('should handle "/agent-space"', async () => {
+        render(getComponent(ROUTE.AGENT_SPACE, true));
+
+        await waitFor(() => expect(screen.queryByText('Agent Space')).toBeTruthy());
+      });
+
+      it('should handle "/agent-space/create"', async () => {
+        render(getComponent(ROUTE.AGENT_SPACE_CREATE, true));
+
+        await waitFor(() => expect(screen.queryByText('Create Sandbox')).toBeTruthy());
+      });
+
+      it('should handle "/agent-space/sandbox/my-sandbox"', async () => {
+        render(getComponent('/agent-space/sandbox/my-sandbox', true));
+
+        await waitFor(() => expect(screen.queryByText('Sandbox Details')).toBeTruthy());
+      });
+    });
+
+    describe('when the agent sandbox is disabled', () => {
+      it.each([ROUTE.AGENT_SPACE, ROUTE.AGENT_SPACE_CREATE, '/agent-space/sandbox/my-sandbox'])(
+        'should redirect "%s" home',
+        async path => {
+          render(getComponent(path));
+
+          await waitFor(() => expect(screen.queryByText('Navigate Home')).toBeTruthy());
+
+          expect(screen.queryByText('Agent Space')).toBeFalsy();
+          expect(screen.queryByText('Create Sandbox')).toBeFalsy();
+          expect(screen.queryByText('Sandbox Details')).toBeFalsy();
+        },
+      );
+    });
+  });
 });
 
-function getComponent(locationOrPath: Location | string): React.ReactElement {
+function getComponent(
+  locationOrPath: Location | string,
+  agentSandboxEnabled = false,
+): React.ReactElement {
+  const store = new MockStoreBuilder()
+    .withDwServerConfig({ agentSandbox: { enabled: agentSandboxEnabled } })
+    .build();
   return (
-    <MemoryRouter initialEntries={[locationOrPath]}>
-      <Suspense fallback={Fallback}>
-        <AppRoutes />
-      </Suspense>
-    </MemoryRouter>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[locationOrPath]}>
+        <Suspense fallback={Fallback}>
+          <AppRoutes />
+        </Suspense>
+      </MemoryRouter>
+    </Provider>
   );
 }

@@ -30,6 +30,7 @@ import { chePluginsReducer } from '@/store/Plugins/chePlugins';
 import { devWorkspacePluginsReducer } from '@/store/Plugins/devWorkspacePlugins';
 import { podsReducer } from '@/store/Pods';
 import { podLogsReducer } from '@/store/Pods/Logs';
+import { sandboxesReducer } from '@/store/Sandboxes';
 import { sanityCheckReducer } from '@/store/SanityCheck';
 import { serverConfigReducer } from '@/store/ServerConfig';
 import { sshKeysReducer } from '@/store/SshKeys';
@@ -62,6 +63,7 @@ export const rootReducer = {
   personalAccessToken: personalAccessTokenReducer,
   plugins: chePluginsReducer,
   pods: podsReducer,
+  sandboxes: sandboxesReducer,
   sanityCheck: sanityCheckReducer,
   sshKeys: sshKeysReducer,
   userId: UserIdReducer,

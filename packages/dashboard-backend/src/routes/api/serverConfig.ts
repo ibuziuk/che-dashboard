@@ -49,6 +49,7 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
       const advancedAuthorization = serverConfigApi.getAdvancedAuthorization(cheCustomResource);
       const autoProvision = serverConfigApi.getAutoProvision(cheCustomResource);
       const allowedSourceUrls = serverConfigApi.getAllowedSourceUrls(cheCustomResource);
+      const agentSandboxEnabled = serverConfigApi.getAgentSandboxEnabled(cheCustomResource);
       const axiosRequestTimeout = serverConfigApi.getAxiosRequestTimeout();
       const showDeprecated = serverConfigApi.getShowDeprecatedEditors(cheCustomResource);
       const hideById = serverConfigApi.getHideEditorsById(cheCustomResource);
@@ -82,6 +83,9 @@ export function registerServerConfigRoute(instance: FastifyInstance) {
         pluginRegistryURL,
         pluginRegistryInternalURL,
         allowedSourceUrls,
+        agentSandbox: {
+          enabled: agentSandboxEnabled,
+        },
       };
 
       if (dashboardLogo !== undefined) {

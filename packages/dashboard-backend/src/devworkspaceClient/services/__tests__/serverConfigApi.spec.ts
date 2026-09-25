@@ -184,6 +184,29 @@ describe('Server Config API Service', () => {
     expect(res).toEqual({ allowUsers: ['user1', 'user2'] });
   });
 
+  describe('Agent Space feature gate', () => {
+    test('disabled when the CheCluster CR has no agentSandbox section', () => {
+      const res = serverConfigService.getAgentSandboxEnabled(buildCustomResource());
+      expect(res).toBe(false);
+    });
+
+    test('disabled when agentSandbox.enabled is false', () => {
+      const customResource = buildCustomResource();
+      customResource.spec.agentSandbox = { enabled: false };
+
+      const res = serverConfigService.getAgentSandboxEnabled(customResource);
+      expect(res).toBe(false);
+    });
+
+    test('enabled when agentSandbox.enabled is true', () => {
+      const customResource = buildCustomResource();
+      customResource.spec.agentSandbox = { enabled: true };
+
+      const res = serverConfigService.getAgentSandboxEnabled(customResource);
+      expect(res).toBe(true);
+    });
+  });
+
   test('getting allowed source urls', () => {
     const res = serverConfigService.getAllowedSourceUrls(buildCustomResource());
     expect(res).toEqual(['https://github.com']);

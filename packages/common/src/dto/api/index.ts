@@ -15,7 +15,13 @@ import {
   V230Devfile,
   V230DevfileComponents,
 } from '@devfile/api';
-import { CoreV1EventList, V1PodList } from '@kubernetes/client-node';
+import {
+  CoreV1EventList,
+  V1ObjectMeta,
+  V1PersistentVolumeClaimSpec,
+  V1PodList,
+  V1PodSpec,
+} from '@kubernetes/client-node';
 import * as webSocket from './webSocket';
 import { ReadStream } from 'fs';
 
@@ -209,6 +215,10 @@ export interface IServerConfig {
   pluginRegistryInternalURL: string;
   dashboardLogo?: { base64data: string; mediatype: string };
   allowedSourceUrls: string[];
+  /** Agent Space (agent-sandbox) feature gate, driven by `spec.agentSandbox.enabled` of the CheCluster CR. */
+  agentSandbox?: {
+    enabled: boolean;
+  };
 }
 
 /**
@@ -291,4 +301,99 @@ export interface IAirGapSample extends IGettingStartedSample {
 export interface IStreamedFile {
   stream: ReadStream;
   size: number;
+}
+
+/**
+ * Agent Space types.
+ *
+ * They mirror the `agents.x-k8s.io/v1beta1` Sandbox custom resource defined by the
+ * upstream kubernetes-sigs/agent-sandbox project.
+ * @see https://agent-sandbox.sigs.k8s.io/
+ */
+
+/** The `spec.operatingMode` values accepted by the Sandbox CRD. */
+export type SandboxOperatingMode = 'Running' | 'Suspended';
+
+/** The `spec.shutdownPolicy` values accepted by the Sandbox CRD. */
+export type SandboxShutdownPolicy = 'Delete' | 'Retain';
+
+/** A `metav1.Condition` as reported in `status.conditions`. */
+export interface ISandboxCondition {
+  type: string;
+  status: 'True' | 'False' | 'Unknown';
+  reason?: string;
+  message?: string;
+  lastTransitionTime?: string;
+  observedGeneration?: number;
+}
+
+export interface ISandboxPodTemplate {
+  metadata?: {
+    labels?: { [key: string]: string };
+    annotations?: { [key: string]: string };
+  };
+  spec: V1PodSpec;
+}
+
+export interface ISandboxVolumeClaimTemplate {
+  metadata?: {
+    name?: string;
+    labels?: { [key: string]: string };
+    annotations?: { [key: string]: string };
+  };
+  spec: V1PersistentVolumeClaimSpec;
+}
+
+export interface ISandboxSpec {
+  podTemplate: ISandboxPodTemplate;
+  /** Immutable once the Sandbox has been created. */
+  volumeClaimTemplates?: ISandboxVolumeClaimTemplate[];
+  service?: boolean;
+  /** Defaults to `Running` when omitted. */
+  operatingMode?: SandboxOperatingMode;
+  shutdownTime?: string;
+  /** Defaults to `Retain` when omitted. */
+  shutdownPolicy?: SandboxShutdownPolicy;
+}
+
+export interface ISandboxStatus {
+  serviceFQDN?: string;
+  service?: string;
+  conditions?: ISandboxCondition[];
+  selector?: string;
+  podIPs?: string[];
+  nodeName?: string;
+}
+
+export interface ISandbox {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: V1ObjectMeta;
+  spec: ISandboxSpec;
+  status?: ISandboxStatus;
+}
+
+export interface ISandboxList {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: {
+    resourceVersion?: string;
+  };
+  items: ISandbox[];
+}
+
+/**
+ * The display status of a Sandbox, derived from its spec and status conditions.
+ * The CRD itself has only two operating modes, so the remaining values are computed.
+ */
+export enum SandboxPhase {
+  RUNNING = 'Running',
+  STARTING = 'Starting',
+  STOPPING = 'Stopping',
+  HIBERNATED = 'Hibernated',
+  STOPPED = 'Stopped',
+  BLOCKED = 'Blocked',
+  FAILED = 'Failed',
+  TERMINATING = 'Terminating',
+  UNKNOWN = 'Unknown',
 }

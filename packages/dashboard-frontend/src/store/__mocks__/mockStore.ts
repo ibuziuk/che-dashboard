@@ -382,6 +382,24 @@ export class MockStoreBuilder {
     return this;
   }
 
+  public withSandboxes(
+    options: {
+      sandboxes?: api.ISandbox[];
+      error?: string;
+    },
+    isLoading = false,
+  ): MockStoreBuilder {
+    this.state = {
+      ...this.state,
+      sandboxes: {
+        sandboxes: options.sandboxes || [],
+        error: options.error,
+        isLoading,
+      },
+    };
+    return this;
+  }
+
   public withSanityCheck(options: { authorized?: boolean; error?: string; lastFetched?: number }) {
     this.state = {
       ...this.state,

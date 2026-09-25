@@ -33,6 +33,19 @@ describe('Active navigation item', () => {
     expect(isActive(itemPath, undefined)).toEqual(false);
   });
 
+  it('should match the "agent space" to the "sandbox details" path', () => {
+    const itemPath = ROUTE.AGENT_SPACE;
+    const activePath = '/agent-space/sandbox/my-sandbox';
+
+    expect(isActive(itemPath, activePath)).toEqual(true);
+  });
+
+  it('should not match the "agent space" to an unrelated path', () => {
+    const itemPath = ROUTE.AGENT_SPACE;
+
+    expect(isActive(itemPath, ROUTE.WORKSPACES)).toEqual(false);
+  });
+
   it('should not match different paths', () => {
     const itemPath = ROUTE.WORKSPACES;
     const activePath = ROUTE.GET_STARTED;

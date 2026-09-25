@@ -125,6 +125,29 @@ export interface IDevWorkspaceTemplateApi {
   create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
 }
 
+export interface ISandboxApi {
+  /**
+   * Lists all the Sandboxes in the given namespace.
+   */
+  listInNamespace(namespace: string): Promise<api.ISandboxList>;
+  /**
+   * Returns the Sandbox with the given name.
+   */
+  getByName(namespace: string, name: string): Promise<api.ISandbox>;
+  /**
+   * Creates a Sandbox in the given namespace.
+   */
+  create(namespace: string, sandbox: api.ISandbox): Promise<api.ISandbox>;
+  /**
+   * Applies the given JSON patches to the Sandbox.
+   */
+  patch(namespace: string, name: string, patches: api.IPatch[]): Promise<api.ISandbox>;
+  /**
+   * Deletes the Sandbox with the given name.
+   */
+  delete(namespace: string, name: string): Promise<void>;
+}
+
 export type CustomResourceDefinitionList = k8s.V1CustomResourceDefinitionList & {
   items?: CheClusterCustomResource[];
 };
@@ -133,6 +156,10 @@ export type CheClusterCustomResource = k8s.V1CustomResourceDefinition & {
   spec: {
     devEnvironments?: CheClusterCustomResourceSpecDevEnvironments;
     components?: CheClusterCustomResourceSpecComponents;
+    // Added in che-operator PR #2184
+    agentSandbox?: {
+      enabled?: boolean;
+    };
     networking?: {
       auth?: {
         advancedAuthorization?: api.IAdvancedAuthorization;
@@ -405,6 +432,11 @@ export interface IServerConfigApi {
   getAutoProvision(cheCustomResource: CheClusterCustomResource): boolean;
 
   /**
+   * Returns true if the Agent Space (agent-sandbox) feature is enabled
+   */
+  getAgentSandboxEnabled(cheCustomResource: CheClusterCustomResource): boolean;
+
+  /**
    * Returns the allowed source URLs
    */
   getAllowedSourceUrls(cheCustomResource: CheClusterCustomResource): string[];
@@ -514,6 +546,7 @@ export interface IDevWorkspaceClient {
   logsApi: ILogsApi;
   personalAccessTokenApi: IPersonalAccessTokenApi;
   podApi: IPodApi;
+  sandboxApi: ISandboxApi;
   serverConfigApi: IServerConfigApi;
   gitConfigApi: IGitConfigApi;
   gettingStartedSampleApi: IGettingStartedSampleApi;

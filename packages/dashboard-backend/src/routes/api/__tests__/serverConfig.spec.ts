@@ -81,6 +81,9 @@ describe('Server Config Route', () => {
         mediatype: 'image/svg+xml',
       },
       allowedSourceUrls: [],
+      agentSandbox: {
+        enabled: true, // stub value from mock
+      },
     });
   });
 });

@@ -17,6 +17,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import NavigationMainItem from '@/Layout/Navigation/MainItem';
 import { ROUTE } from '@/Routes';
 import { RootState } from '@/store';
+import { selectAgentSandboxEnabled } from '@/store/ServerConfig/selectors';
 import { selectAllWorkspaces } from '@/store/Workspaces/selectors';
 
 import { NavigationItemObject } from '.';
@@ -27,13 +28,15 @@ type Props = MappedProps & {
 
 export class NavigationMainList extends React.PureComponent<Props> {
   private get items(): NavigationItemObject[] {
-    const { allWorkspaces } = this.props;
+    const { agentSandboxEnabled, allWorkspaces } = this.props;
 
     const allWorkspacesNumber = allWorkspaces.length;
 
     return [
       { to: ROUTE.GET_STARTED, label: 'Create Workspace' },
       { to: ROUTE.WORKSPACES, label: `Workspaces (${allWorkspacesNumber})` },
+      // The Agent Space is gated by the `agentSandbox.enabled` property of the CheCluster CR
+      ...(agentSandboxEnabled ? [{ to: ROUTE.AGENT_SPACE, label: 'Agent Space' }] : []),
     ];
   }
 
@@ -49,6 +52,7 @@ export class NavigationMainList extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: RootState) => ({
+  agentSandboxEnabled: selectAgentSandboxEnabled(state),
   allWorkspaces: selectAllWorkspaces(state),
 });
 

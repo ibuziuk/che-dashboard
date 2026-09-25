@@ -51,7 +51,32 @@ Key components:
 - Restore workspaces from backup images (`/restore-from-backup`)
 - Backend backup-config API per namespace
 
-### 6. Administration
+### 6. Agent Space (Sandboxes)
+
+Management of [agent-sandbox](https://agent-sandbox.sigs.k8s.io/) `Sandbox` custom resources
+(`agents.x-k8s.io/v1beta1`). The whole feature, navigation item included, is hidden unless
+`spec.agentSandbox.enabled` is `true` on the CheCluster custom resource.
+
+- Getting-started samples adapted from the upstream `kubernetes-sigs/agent-sandbox` examples
+- Create wizard: name, container image, runtime class, CPU and memory limits
+- List of the sandboxes of the user namespace with a derived status
+- Details view: spec, status conditions and namespace events
+- Lifecycle actions and deletion behind a confirmation dialog
+- Status polling every 5 seconds while a sandbox is running or transitioning
+
+The CRD exposes a single `spec.operatingMode` field with two values, so the lifecycle actions
+map onto it as follows.
+
+| Action | `spec.operatingMode` |
+|---|---|
+| Start, Resume | `Running` |
+| Stop, Hibernate | `Suspended` |
+
+The richer statuses shown in the UI (Starting, Running, Stopping, Hibernated, Stopped, Blocked,
+Failed, Terminating, Unknown) are derived from the operating mode and the status conditions in
+`services/sandbox`.
+
+### 7. Administration
 
 - Cluster-wide workspace limits
 - Allowed source URLs
@@ -68,6 +93,9 @@ src/
 ├── components/     # Reusable UI components
 ├── contexts/       # React contexts (WorkspaceActions, etc.)
 ├── pages/          # Page-level components
+│   ├── AgentSpace/
+│   ├── AgentSpaceCreate/
+│   ├── AgentSpaceDetails/
 │   ├── GetStarted/
 │   ├── Loader/
 │   ├── RestoreFromBackup/
@@ -140,6 +168,14 @@ src/
 - `GET /dashboard/api/namespace/:namespace/backups`
 - `GET /dashboard/api/namespace/:namespace/devworkspaces/:workspaceName/backup-status`
 
+### Sandboxes (Agent Space)
+
+- `GET /dashboard/api/namespace/:namespace/sandboxes`
+- `POST /dashboard/api/namespace/:namespace/sandboxes`
+- `GET /dashboard/api/namespace/:namespace/sandboxes/:name`
+- `PATCH /dashboard/api/namespace/:namespace/sandboxes/:name`
+- `DELETE /dashboard/api/namespace/:namespace/sandboxes/:name`
+
 ### Cluster Operations
 
 - `GET /dashboard/api/namespace/:namespace/pods`
@@ -165,6 +201,7 @@ src/
 
 - **SSRF protection**: the data resolver route validates all outbound URLs against an allowlist, blocks private IP ranges (RFC 1918, loopback, IPv4-mapped IPv6, link-local), and rejects redirects to blocked destinations.
 - **Rate limiting**: applied to API routes via `@fastify/rate-limit`.
+- **Sandbox routes**: every call is made with the token of the requesting user and is scoped to a namespace, so the feature adds no cluster-wide RBAC. Request bodies are validated against a JSON schema before they reach the Kubernetes API.
 - **Dependency pinning**: all transitive dependencies with known CVEs are pinned via `resolutions` in the root `package.json`.
 
 ## Development

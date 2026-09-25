@@ -16,6 +16,7 @@ import { api } from '@eclipse-che/common';
 import { RootState } from '@/store';
 import {
   selectAdvancedAuthorization,
+  selectAgentSandboxEnabled,
   selectAllowedSources,
   selectAutoProvision,
   selectCurrentScc,
@@ -402,6 +403,46 @@ describe('ServerConfig Selectors', () => {
       } as RootState;
       const result = selectCurrentScc(stateWithNoScc);
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('selectAgentSandboxEnabled', () => {
+    it('should be false when the CheCluster has no agentSandbox section', () => {
+      expect(selectAgentSandboxEnabled(mockState)).toEqual(false);
+    });
+
+    it('should be false when the Agent Space is disabled', () => {
+      const state = {
+        ...mockState,
+        dwServerConfig: {
+          ...mockState.dwServerConfig,
+          config: {
+            ...mockState.dwServerConfig.config,
+            agentSandbox: {
+              enabled: false,
+            },
+          },
+        },
+      } as RootState;
+
+      expect(selectAgentSandboxEnabled(state)).toEqual(false);
+    });
+
+    it('should be true when the Agent Space is enabled', () => {
+      const state = {
+        ...mockState,
+        dwServerConfig: {
+          ...mockState.dwServerConfig,
+          config: {
+            ...mockState.dwServerConfig.config,
+            agentSandbox: {
+              enabled: true,
+            },
+          },
+        },
+      } as RootState;
+
+      expect(selectAgentSandboxEnabled(state)).toEqual(true);
     });
   });
 });

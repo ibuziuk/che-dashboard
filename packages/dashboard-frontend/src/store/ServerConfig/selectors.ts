@@ -56,6 +56,14 @@ export const selectStartTimeout = createSelector(
   state => state.config.timeouts?.startTimeout,
 );
 
+/**
+ * True when the Agent Space feature is enabled in the CheCluster CR.
+ */
+export const selectAgentSandboxEnabled = createSelector(
+  selectState,
+  state => state.config.agentSandbox?.enabled === true,
+);
+
 export const selectDashboardLogo = createSelector(selectState, state => state.config.dashboardLogo);
 
 export const selectAdvancedAuthorization = createSelector(

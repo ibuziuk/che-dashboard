@@ -61,6 +61,22 @@ export function buildUserPreferencesLocation(tab?: UserPreferencesTab): Location
   return _buildLocationObject(pathAndQuery);
 }
 
+export function buildAgentSpaceLocation(): Location {
+  return _buildLocationObject(ROUTE.AGENT_SPACE);
+}
+
+export function buildAgentSpaceCreateLocation(sampleId?: string): Location {
+  const pathAndQuery =
+    sampleId === undefined
+      ? ROUTE.AGENT_SPACE_CREATE
+      : `${ROUTE.AGENT_SPACE_CREATE}?sample=${encodeURIComponent(sampleId)}`;
+  return _buildLocationObject(pathAndQuery);
+}
+
+export function buildAgentSpaceDetailsLocation(sandboxName: string): Location {
+  return _buildLocationObject(ROUTE.AGENT_SPACE_DETAILS.replace(':sandboxName', sandboxName));
+}
+
 export function buildGettingStartedLocation(): Location {
   return _buildLocationObject(ROUTE.GET_STARTED);
 }

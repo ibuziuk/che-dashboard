@@ -12,7 +12,13 @@
 
 import { Location } from 'react-router-dom';
 
-import { buildWorkspaceDetailsLocation, toHref } from '@/services/helpers/location';
+import {
+  buildAgentSpaceCreateLocation,
+  buildAgentSpaceDetailsLocation,
+  buildAgentSpaceLocation,
+  buildWorkspaceDetailsLocation,
+  toHref,
+} from '@/services/helpers/location';
 import { constructWorkspace } from '@/services/workspace-adapter';
 import { DevWorkspaceBuilder } from '@/store/__mocks__/devWorkspaceBuilder';
 
@@ -34,5 +40,24 @@ describe('location', () => {
       .withNamespace('che-user');
     const workspace = constructWorkspace(devWorkspaceBuilder.build());
     expect(buildWorkspaceDetailsLocation(workspace).pathname).toEqual(`/workspace/che-user/wksp`);
+  });
+
+  test('buildAgentSpaceLocation', () => {
+    expect(buildAgentSpaceLocation().pathname).toEqual('/agent-space');
+  });
+
+  test('buildAgentSpaceCreateLocation', () => {
+    expect(buildAgentSpaceCreateLocation().pathname).toEqual('/agent-space/create');
+    expect(buildAgentSpaceCreateLocation().search).toEqual('');
+
+    const withSample = buildAgentSpaceCreateLocation('hello-world');
+    expect(withSample.pathname).toEqual('/agent-space/create');
+    expect(withSample.search).toEqual('?sample=hello-world');
+  });
+
+  test('buildAgentSpaceDetailsLocation', () => {
+    expect(buildAgentSpaceDetailsLocation('my-sandbox').pathname).toEqual(
+      '/agent-space/sandbox/my-sandbox',
+    );
   });
 });
